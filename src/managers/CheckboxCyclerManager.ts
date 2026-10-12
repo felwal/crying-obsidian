@@ -1,7 +1,7 @@
 import { Editor, TFile } from "obsidian";
 import AbsManager from "./AbsManager";
 
-export default class ChecboxCyclerManager extends AbsManager {
+export default class CheckboxCyclerManager extends AbsManager {
   STATE_INDEX = 3;
   FILE_CUSTOM_STATES_FM = "cb-states";
 

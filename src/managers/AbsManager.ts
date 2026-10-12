@@ -10,4 +10,6 @@ export default abstract class AbsManager {
   }
 
   abstract load(): void;
+
+  unload() {}
 }

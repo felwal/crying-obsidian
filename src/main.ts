@@ -3,28 +3,29 @@ import { CryingPluginSettings, DEFAULT_SETTINGS, CryingSettingTab } from "./sett
 import RenderSourcesManager from "./managers/RenderSourcesManager";
 import NoteOpenerManager from "./managers/NoteOpenerManager";
 import ColorSchemeManager from "./managers/ColorSchemeManager";
-import ChecboxCyclerManager from "./managers/CheckboxCyclerManager";
+import CheckboxCyclerManager from "./managers/CheckboxCyclerManager";
+import AbsManager from "./managers/AbsManager";
+import NavbarManager from "./managers/NavbarManager";
 
 export default class CryingPlugin extends Plugin {
   settings: CryingPluginSettings;
 
-  noteOpenerManager = new NoteOpenerManager(this);
-  colorSchemeManager = new ColorSchemeManager(this);
-  checkboxCyclerManager = new ChecboxCyclerManager(this);
-  renderSourcesManager = new RenderSourcesManager(this);
+  managers: AbsManager[] = [
+    new NoteOpenerManager(this),
+    new NavbarManager(this),
+    new ColorSchemeManager(this),
+    new CheckboxCyclerManager(this),
+    new RenderSourcesManager(this),
+  ];
 
   async onload() {
     await this.loadSettings();
-
-    this.noteOpenerManager.load();
-    this.colorSchemeManager.load();
-    this.checkboxCyclerManager.load();
-    this.renderSourcesManager.load();
-
+    this.managers.forEach(manager => manager.load());
     this.addSettingTab(new CryingSettingTab(this.app, this));
   }
 
   onunload() {
+    this.managers.forEach(manager => manager.unload());
   }
 
   async loadSettings() {
