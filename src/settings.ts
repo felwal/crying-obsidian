@@ -3,10 +3,14 @@ import CryingPlugin from "./main";
 
 export interface CryingPluginSettings {
   refreshOnStartup: boolean;
+  italicClass: string;
+  quotationMarkClass: string;
 }
 
 export const DEFAULT_SETTINGS: CryingPluginSettings = {
-  refreshOnStartup: false
+  refreshOnStartup: false,
+  italicClass: "source-work",
+  quotationMarkClass: "source-work-partial"
 }
 
 export class CryingSettingTab extends PluginSettingTab {

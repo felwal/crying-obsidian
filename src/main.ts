@@ -1,5 +1,6 @@
-import { Plugin } from "obsidian";
+import { Plugin, TFile, getLinkpath } from "obsidian";
 import { CryingPluginSettings, DEFAULT_SETTINGS, CryingSettingTab } from "./settings"
+import { SourceLink } from "./sourceLink";
 
 export default class CryingPlugin extends Plugin {
   settings: CryingPluginSettings;
@@ -11,6 +12,7 @@ export default class CryingPlugin extends Plugin {
   async onload() {
     await this.loadSettings();
     this.loadCommands();
+    this.registerPostProcessing();
 
     if (this.settings.refreshOnStartup) {
       this.refreshColorScheme();
@@ -55,6 +57,34 @@ export default class CryingPlugin extends Plugin {
       }
     });
   }
+
+  // render sources
+
+  registerPostProcessing() {
+    this.registerMarkdownPostProcessor((element, context) => {
+      const linkEls = element.querySelectorAll("a.internal-link");
+
+      for (let i = 0; i < linkEls.length; i++) {
+        const linkEl = linkEls.item(i);
+
+        console.log(linkEl.parentNode.parentNode)
+
+        const linkBasename = getLinkpath(linkEl.childNodes[0].parentNode.dataset.href);
+        const linkText = linkEl.innerText.trim();
+
+        // TODO: get class of linked file
+
+        const isSourceLink = true;
+        const isPartialWork = false;
+
+        if (isSourceLink) {
+          context.addChild(new SourceLink(linkEl, linkBasename, linkText, isPartialWork));
+        }
+      }
+    });
+  }
+
+  // color scheme
 
   adaptToSystem() {
     this.app.changeTheme(this.COLOR_SCHEME_SYSTEM);
