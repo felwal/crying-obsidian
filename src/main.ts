@@ -1,11 +1,13 @@
-import { CachedMetadata, Editor, Plugin, TFile, getLinkpath } from "obsidian";
+import { CachedMetadata, Editor, Notice, Plugin, TFile, getLinkpath } from "obsidian";
 import { EditorView } from "@codemirror/view";
 import { CryingPluginSettings, DEFAULT_SETTINGS, CryingSettingTab } from "./settings"
 import { SourceLink } from "./sourceLink";
+import { OpenerNote } from "./openerNote";
 
 export default class CryingPlugin extends Plugin {
   settings: CryingPluginSettings;
 
+  ribbonIcons: Array<HTMLElement> = new Array();
   states: Array<string>;
 
   COLOR_SCHEME_DARK = "obsidian";
@@ -19,6 +21,7 @@ export default class CryingPlugin extends Plugin {
     await this.loadSettings();
     this.loadCommands();
 
+    this.loadRibbon();
     this.registerPostProcessing();
     this.registerEvents();
     this.loadStates(this.app.workspace.getActiveFile());
@@ -79,6 +82,46 @@ export default class CryingPlugin extends Plugin {
       icon: "checkbox-glyph",
       editorCallback: (editor: Editor) => this.cycleCheckbox(editor, false)
     });
+  }
+
+  // note opener
+
+  loadRibbon() {
+    this.app.workspace.onLayoutReady(async () => {
+      // remove previous icons before reloading
+      for (var i = 0; i < this.ribbonIcons.length; i++) {
+        this.ribbonIcons[i].remove();
+      }
+
+      for (var i = 0; i < this.settings.openerNotes.length; i++) {
+        this.addOpenerNoteRibbonIcon(this.settings.openerNotes[i]);
+      }
+    });
+  }
+
+  addOpenerNoteRibbonIcon(openerNote: OpenerNote) {
+    const file = this.getFile(openerNote.path);
+    const displayName = file != null ? file?.basename : openerNote.path;
+    const tooltip = "Open '" + displayName + "'";
+
+    const ic = this.addRibbonIcon(openerNote.icon, tooltip, () => {
+      if (file) {
+        this.openNote(file);
+      }
+      else {
+        new Notice("Could not find note '" + openerNote.path + "'");
+      }
+    });
+
+    this.ribbonIcons.push(ic);
+  }
+
+  openNote(file: TFile) {
+    this.app.workspace.getLeaf().openFile(file, {active: true});
+  }
+
+  getFile(path: string): TFile | null {
+    return this.app.vault.getAbstractFileByPath(path + ".md") as TFile;
   }
 
   // render sources
@@ -198,8 +241,6 @@ export default class CryingPlugin extends Plugin {
 
     this.states = this.settings.states;
   }
-
-  //
 
   cycleCheckbox(editor: Editor, cycleThroughBullet: boolean) {
     let lineIndex = editor.getCursor().line;

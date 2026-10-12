@@ -1,7 +1,11 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import CryingPlugin from "./main";
+import { OpenerNote } from "./openerNote";
 
 export interface CryingPluginSettings {
+  // note opener
+  openerNotes: Array<OpenerNote>;
+
   // color scheme
   refreshOnStartup: boolean;
 
@@ -20,6 +24,7 @@ export const DEFAULT_SETTINGS: CryingPluginSettings = {
   quotationMarkClass: "source-work-partial",
   states: [" ", "/", "x", "-"],
   previewModeEnabled: true,
+  openerNotes: [new OpenerNote("", "note-glyph")],
 }
 
 export class CryingSettingTab extends PluginSettingTab {
@@ -34,9 +39,75 @@ export class CryingSettingTab extends PluginSettingTab {
     const {containerEl} = this;
     containerEl.empty();
 
+    this.displayNoteOpenerSettings(containerEl);
     this.displayColorSchemeSettings(containerEl);
     this.displayCheckboxCyclerSettings(containerEl);
+  }
 
+  displayNoteOpenerSettings(containerEl: HTMLElement) {
+    containerEl.createEl("h2", {text: "Note Opener"});
+    containerEl.createEl("h3", {text: "Shortcuts"});
+
+    if (this.plugin.settings.openerNotes.length == 0) {
+      containerEl.createEl("p", {text: "You currently have no shortcuts."});
+    }
+
+    // note shortcuts
+    for (var i = 0; i < this.plugin.settings.openerNotes.length; i++) {
+      const openerNote = this.plugin.settings.openerNotes[i];
+
+      new Setting(containerEl)
+      .setName("Open ...")
+      .addText(text => text
+        .setPlaceholder("Path: folder/note")
+        .setValue(openerNote.path)
+        .onChange(async (value) => {
+          console.log("note: " + value);
+          openerNote.path = value;
+
+          await this.plugin.saveSettings();
+          this.plugin.loadRibbon();
+        })
+      )
+      .addText(text => text
+        .setPlaceholder("Icon name")
+        .setValue(openerNote.icon)
+        .onChange(async (value) => {
+          console.log("icon: " + value);
+          openerNote.icon = value;
+
+          await this.plugin.saveSettings();
+          this.plugin.loadRibbon();
+        })
+      )
+      .addButton(button => button
+        .setIcon("trash")
+        .setTooltip("Delete")
+        .setWarning()
+        .onClick(async (callback) => {
+          console.log("shortcut removed");
+          this.plugin.settings.openerNotes.remove(openerNote);
+
+          await this.plugin.saveSettings();
+          this.display();
+          this.plugin.loadRibbon();
+        })
+      )
+    }
+
+    // add shortcut
+    new Setting(containerEl)
+      .addButton(button => button
+        .setButtonText("Add shortcut")
+        .onClick(async (callback) => {
+          console.log("shortcut added");
+          this.plugin.settings.openerNotes.push(new OpenerNote("", "note-glyph"));
+
+          await this.plugin.saveSettings();
+          this.display();
+          this.plugin.loadRibbon();
+        })
+      )
   }
 
   displayColorSchemeSettings(containerEl: HTMLElement) {
