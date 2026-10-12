@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-crying",
-	"name": "Crying Obsidian",
-	"version": "0.0.0",
-	"minAppVersion": "1.0.0",
-	"description": "Various personal fixes",
-	"author": "Felix Wallin",
-	"authorUrl": "",
-	"isDesktopOnly": false
+  "id": "obsidian-crying",
+  "name": "Crying Obsidian",
+  "version": "0.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "Various personal fixes",
+  "author": "Felix Wallin",
+  "authorUrl": "",
+  "isDesktopOnly": false
 }
