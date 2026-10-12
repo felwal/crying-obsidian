@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import CryingPlugin from "./main";
-import { OpenerNote } from "./openerNote";
+import { OpenerNote } from "./managers/NoteOpenerManager";
 
 export interface CryingPluginSettings {
   // note opener
@@ -19,12 +19,12 @@ export interface CryingPluginSettings {
 }
 
 export const DEFAULT_SETTINGS: CryingPluginSettings = {
+  openerNotes: [new OpenerNote("", "note-glyph")],
   refreshOnStartup: false,
   italicClass: "source-work",
   quotationMarkClass: "source-work-partial",
   states: [" ", "/", "x", "-"],
   previewModeEnabled: true,
-  openerNotes: [new OpenerNote("", "note-glyph")],
 }
 
 export class CryingSettingTab extends PluginSettingTab {
@@ -46,7 +46,6 @@ export class CryingSettingTab extends PluginSettingTab {
 
   displayNoteOpenerSettings(containerEl: HTMLElement) {
     containerEl.createEl("h2", {text: "Note Opener"});
-    containerEl.createEl("h3", {text: "Shortcuts"});
 
     if (this.plugin.settings.openerNotes.length == 0) {
       containerEl.createEl("p", {text: "You currently have no shortcuts."});
@@ -65,8 +64,10 @@ export class CryingSettingTab extends PluginSettingTab {
           console.log("note: " + value);
           openerNote.path = value;
 
+          // TODO: only save if valid note
+
           await this.plugin.saveSettings();
-          this.plugin.loadRibbon();
+          this.plugin.noteOpenerManager.loadRibbon();
         })
       )
       .addText(text => text
@@ -77,7 +78,7 @@ export class CryingSettingTab extends PluginSettingTab {
           openerNote.icon = value;
 
           await this.plugin.saveSettings();
-          this.plugin.loadRibbon();
+          this.plugin.noteOpenerManager.loadRibbon();
         })
       )
       .addButton(button => button
@@ -90,7 +91,7 @@ export class CryingSettingTab extends PluginSettingTab {
 
           await this.plugin.saveSettings();
           this.display();
-          this.plugin.loadRibbon();
+          this.plugin.noteOpenerManager.loadRibbon();
         })
       )
     }
@@ -105,7 +106,7 @@ export class CryingSettingTab extends PluginSettingTab {
 
           await this.plugin.saveSettings();
           this.display();
-          this.plugin.loadRibbon();
+          this.plugin.noteOpenerManager.loadRibbon();
         })
       )
   }
@@ -139,8 +140,6 @@ export class CryingSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         })
       )
-
-    containerEl.createEl("h3", {text: "States"});
 
     // states
     for (let i = 0; i < this.plugin.settings.states.length; i++) {
