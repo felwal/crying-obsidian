@@ -1,6 +1,5 @@
 import { Plugin } from "obsidian";
 import { CryingPluginSettings, DEFAULT_SETTINGS, CryingSettingTab } from "./settings"
-import RenderSourcesManager from "./managers/RenderSourcesManager";
 import NoteOpenerManager from "./managers/NoteOpenerManager";
 import ColorSchemeManager from "./managers/ColorSchemeManager";
 import CheckboxCyclerManager from "./managers/CheckboxCyclerManager";
@@ -15,7 +14,6 @@ export default class CryingPlugin extends Plugin {
     new NavbarManager(this),
     new ColorSchemeManager(this),
     new CheckboxCyclerManager(this),
-    new RenderSourcesManager(this),
   ];
 
   async onload() {

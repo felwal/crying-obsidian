@@ -9,10 +9,6 @@ export interface CryingPluginSettings {
   // color scheme
   refreshOnStartup: boolean;
 
-  // render sources
-  italicClass: string;
-  quotationMarkClass: string;
-
   // checkbox cycler
   states: Array<string>;
   previewModeEnabled: boolean;
@@ -21,8 +17,6 @@ export interface CryingPluginSettings {
 export const DEFAULT_SETTINGS: CryingPluginSettings = {
   openerNotes: [new OpenerNote("", "note-glyph")],
   refreshOnStartup: false,
-  italicClass: "source-work",
-  quotationMarkClass: "source-work-partial",
   states: [" ", "/", "x", "-"],
   previewModeEnabled: true,
 }
